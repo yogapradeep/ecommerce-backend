@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  
+  orders Order[]
+}
+
+model Order {
+  id        Int       @id @default(autoincrement())
+  amount    Int
+  user_id   Int
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [user_id], references: [id])
+  chairs    OrderChairs[]
+  tables    OrderTables[]
+  tops      OrderTops[]
+}
+
+model OrderChairs {
+  id      Int    @id @default(autoincrement())
+  order_id Int
+  chair_id Int
+  order    Order @relation(fields: [order_id], references: [id])
+  chair    Product @relation(fields: [chair_id], references: [id])
+}
+
+model OrderTables {
+  id      Int    @id @default(autoincrement())
+  order_id Int
+  table_id Int
+  order    Order @relation(fields: [order_id], references: [id])
+  table    Product @relation(fields: [table_id], references: [id])
+}
+
+model OrderTops {
+  id      Int    @id @default(autoincrement())
+  order_id Int
+  top_id   Int
+  order    Order @relation(fields: [order_id], references: [id])
+  top      Product @relation(fields: [top_id], references: [id])
+}
+
+model Product {
+  id       Int      @id @default(autoincrement())
+  name     String
+  price    Int
+  category String
+  image    String
+  OrderChairs OrderChairs[]
+  OrderTables OrderTables[]
+  OrderTops   OrderTops[]
+}
