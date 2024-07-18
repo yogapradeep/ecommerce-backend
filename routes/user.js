@@ -1,12 +1,21 @@
-// routes/user.js
 const express = require("express");
 const router = express.Router();
-const prisma = require("../prisma");
+const db = require("../db");
 
 router.post("/", async (req, res) => {
   const { name, email } = req.body;
-  const user = await prisma.user.create({ data: { name, email } });
-  res.json(user);
+  try {
+    const result = await db.query(
+      "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
+      [name, email]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the user." });
+  }
 });
 
 module.exports = router;

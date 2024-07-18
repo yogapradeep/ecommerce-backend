@@ -1,22 +1,39 @@
+require("dotenv").config();
 const express = require("express");
-const userRouter = require("./routes/user");
-const orderRouter = require("./routes/order");
-const productRouter = require("./routes/product");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
+const db = require("./db");
+const userRoutes = require("./routes/user");
+const orderRoutes = require("./routes/order");
+const productRoutes = require("./routes/products");
 
 const app = express();
-app.use(cors());
+const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
-app.use("/users", userRouter);
-app.use("/orders", orderRouter);
-app.use("/products", productRouter);
+app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/products", productRoutes);
 
-const PORT = process.env.PORT || 3000;
+// Function to run the SQL script
+const runSQLScript = async () => {
+  const filePath = path.join(__dirname, "init.sql");
+  const script = fs.readFileSync(filePath, "utf8");
+  console.log("script", script);
+  try {
+    await db.query(script);
+    console.log("Database initialized");
+  } catch (error) {
+    console.error("Error initializing database:", error);
+  }
+};
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Run the SQL script to initialize the database
+runSQLScript();
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
-
-module.exports = app;

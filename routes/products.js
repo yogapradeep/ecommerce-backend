@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const prisma = require("../prisma");
+const db = require("../db");
 
 router.get("/", async (req, res) => {
   try {
-    const products = await prisma.product.findMany();
-    res.json(products);
+    const result = await db.query("SELECT * FROM products");
+    res.json(result.rows);
   } catch (error) {
     console.error(error);
     res
